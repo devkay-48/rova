@@ -1,0 +1,33 @@
+app-id: com.devkay.rova
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+  - org.freedesktop.Sdk.Extension.node20
+
+command: rova
+
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  - --filesystem=home
+
+modules:
+  - name: rova
+    buildsystem: simple
+    build-options:
+      append-path: /usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/node20/bin
+      build-args:
+        - --share=network
+      env:
+        CARGO_HOME: /run/build/rova/cargo
+    build-commands:
+      - npm install
+      - npm run tauri build -- --no-bundle
+      - install -Dm755 src-tauri/target/release/rova /app/bin/rova
+    sources:
+      - type: dir
+        path: ../apps/rova
